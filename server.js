@@ -17,16 +17,17 @@ const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
 
-// Rota POST para receber perguntas e enviar para a API OpenAI
+// Rota POST para receber perguntas e enviar para a API TradicaoAPI (modelo personalizado)
 app.post('/ask', async (req, res) => {
     const question = req.body.question;
     try {
-        const response = await openai.chat.completions.create({
-            model: "gpt-3.5-turbo",  // Use o modelo mais recente e recomendado
-            messages: [{ role: "user", content: question }],
+        const response = await openai.completions.create({
+            model: "TradicaoAPI",  // Substitua pelo nome do seu modelo TradicaoAPI
+            prompt: question,
+            max_tokens: 150,
         });
         // Envia a resposta do modelo como resposta JSON ao cliente
-        res.json({ answer: response.choices[0].message.content.trim() });
+        res.json({ answer: response.choices[0].text.trim() });
     } catch (error) {
         // Log do erro e envio de mensagem de erro ao cliente
         console.error('Error:', error);
