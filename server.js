@@ -17,17 +17,30 @@ const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
 
-// Rota POST para receber perguntas e enviar para a API TradicaoAPI (modelo personalizado)
+// Rota POST para receber perguntas e enviar para a API OpenAI
 app.post('/ask', async (req, res) => {
     const question = req.body.question;
     try {
-        const response = await openai.completions.create({
-            model: "TradicaoAPI",  // Substitua pelo nome do seu modelo TradicaoAPI
-            prompt: question,
-            max_tokens: 150,
+        const response = await openai.chat.completions.create({
+            model: "gpt-3.5-turbo",  // Usando o modelo especificado
+            messages: [
+                {
+                    role: "system",
+                    content: "Você é um assistente virtual especializado para farmacêuticos. Sua função é fornecer informações precisas, confiáveis e atualizadas sobre medicamentos e sintomas, sempre alinhadas com as diretrizes da ANVISA. Mantenha um tom profissional, claro e empático. Utilize termos técnicos apenas quando necessário e ofereça alternativas simplificadas sempre que possível. Se uma informação não estiver disponível ou se houver incerteza, recomende que o usuário consulte um farmacêutico ou médico."
+                },
+                {
+                    role: "user",
+                    content: question,
+                }
+            ],
+            temperature: 0.2,
+            max_tokens: 500,
+            top_p: 0.5,
+            frequency_penalty: 0,
+            presence_penalty: 0
         });
         // Envia a resposta do modelo como resposta JSON ao cliente
-        res.json({ answer: response.choices[0].text.trim() });
+        res.json({ answer: response.choices[0].message.content.trim() });
     } catch (error) {
         // Log do erro e envio de mensagem de erro ao cliente
         console.error('Error:', error);
