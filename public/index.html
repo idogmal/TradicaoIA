@@ -21,12 +21,12 @@
 
         /* Contêiner do chat */
         .chat-container {
-            width: 30%;
+            width: 35%; /* Aumentado para 35% */
             background-color: #e9ecef;
             padding: 20px;
             box-sizing: border-box;
             height: 100%;
-            overflow-y: auto;
+            overflow-y: hidden; /* Impedir crescimento vertical */
             display: flex;
             flex-direction: column;
             border-right: 2px solid #ccc;
@@ -39,7 +39,7 @@
 
         /* Contêiner de login */
         .login-container {
-            width: 70%;
+            width: 65%; /* Ajustado para 65% */
             background-color: #274181;
             color: white;
             padding: 40px;
@@ -56,13 +56,14 @@
         }
 
         /* Estilos para inputs e botões */
-        input, button {
+        input, button, textarea {
             padding: 10px;
             margin: 10px 0;
             width: 100%;
             border-radius: 5px;
             border: 1px solid #ccc;
             box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
         }
 
         /* Estilos específicos para botões */
@@ -89,6 +90,7 @@
             border: 1px solid #ccc;
             border-radius: 5px;
             box-sizing: border-box;
+            height: calc(100% - 110px); /* Altura fixa, descontando o título e a caixa de entrada */
         }
 
         /* Estilos para as mensagens do chat */
@@ -104,18 +106,29 @@
         /* Mensagem do usuário (alinhada à direita) */
         .user {
             background-color: #dcf8c6;
-            margin-left: auto;
+            margin-left: auto;  /* Força a mensagem para o lado direito */
             text-align: right;
             border-radius: 10px 0 10px 10px;
+            clear: both;
         }
 
         /* Mensagem do TradiçãoIA (alinhada à esquerda) */
         .gpt {
             background-color: #ffffff;
-            margin-right: auto;
+            margin-right: auto;  /* Força a mensagem para o lado esquerdo */
             text-align: left;
             border-radius: 0 10px 10px 10px;
             border: 1px solid #ddd;
+            clear: both;
+        }
+
+        /* Ajuste para o campo de texto de pergunta */
+        textarea {
+            resize: none;
+            overflow-y: hidden;
+            height: 50px; /* Altura fixa para a caixa de texto */
+            max-height: 100px; /* Altura máxima */
+            min-height: 50px; /* Altura mínima */
         }
     </style>
 </head>
@@ -123,8 +136,12 @@
     <!-- Contêiner do chat -->
     <div class="chat-container">
         <h1>TradiçãoIA</h1>
-        <div id="chat"></div>
-        <input type="text" id="question" placeholder="Digite sua pergunta aqui" onkeypress="handleKeyPress(event)">
+        <div id="chat">
+            <div class="message gpt initial">
+                Oi, eu sou o TradicaoAPI, posso lhe ajudar?
+            </div>
+        </div>
+        <textarea id="question" placeholder="Digite sua pergunta aqui" onkeypress="handleKeyPress(event)"></textarea>
         <button onclick="ask()">Enviar Pergunta</button>
     </div>
 
@@ -150,6 +167,12 @@
                 return;
             }
 
+            // Remove a mensagem inicial se ainda estiver presente
+            const initialMessage = chatDiv.querySelector('.gpt.initial');
+            if (initialMessage) {
+                chatDiv.removeChild(initialMessage);
+            }
+
             // Exibe a pergunta do usuário na área de chat
             const userMessage = document.createElement('div');
             userMessage.classList.add('message', 'user');
@@ -171,11 +194,11 @@
                 });
                 const data = await response.json();
 
-                // Exibe a resposta do TradiçãoIA na área de chat
+                // Exibe a resposta do TradiçãoIA na área de chat com efeito de digitação
                 const gptMessage = document.createElement('div');
                 gptMessage.classList.add('message', 'gpt');
-                gptMessage.textContent = data.answer;
                 chatDiv.appendChild(gptMessage);
+                typeText(gptMessage, data.answer);
 
                 // Rolagem automática para a última mensagem
                 chatDiv.scrollTop = chatDiv.scrollHeight;
@@ -192,10 +215,24 @@
         }
 
         /**
+         * Função para exibir texto com efeito de digitação mais rápido.
+         */
+        function typeText(element, text, index = 0) {
+            if (index < text.length) {
+                element.textContent += text.charAt(index);
+                setTimeout(() => {
+                    element.scrollIntoView({ behavior: "smooth" });
+                    typeText(element, text, index + 1);
+                }, 10);  // Tempo reduzido para 10ms
+            }
+        }
+
+        /**
          * Função para lidar com o pressionamento da tecla Enter na caixa de pergunta.
          */
         function handleKeyPress(event) {
-            if (event.key === 'Enter') {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
                 ask();
             }
         }
@@ -228,3 +265,4 @@
     </script>
 </body>
 </html>
+
