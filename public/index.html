@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TradiçãoIA Interface</title>
     <style>
+        /* Importando uma fonte moderna */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap');
+
         /* Estilos globais */
         body {
             font-family: 'Arial', sans-serif;
@@ -29,16 +32,27 @@
             border-right: 2px solid #ccc;
         }
 
+        /* Título centralizado */
+        .chat-container h1 {
+            text-align: center;
+        }
+
         /* Contêiner de login */
         .login-container {
             width: 70%;
-            background-color: #007bff;
+            background-color: #274181;
             color: white;
             padding: 40px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
+        }
+
+        /* Estilos para títulos */
+        h1, h2 {
+            font-family: 'Poppins', sans-serif;
+            margin: 0 0 20px 0;
         }
 
         /* Estilos para inputs e botões */
@@ -48,11 +62,12 @@
             width: 100%;
             border-radius: 5px;
             border: 1px solid #ccc;
+            box-sizing: border-box;
         }
 
         /* Estilos específicos para botões */
         button {
-            background-color: #0069d9;
+            background-color: #f36f26;
             color: white;
             border: none;
             cursor: pointer;
@@ -61,7 +76,7 @@
 
         /* Cor de fundo do botão ao passar o mouse */
         button:hover {
-            background-color: #0056b3;
+            background-color: #d95f20;
         }
 
         /* Área de mensagens do chat */
@@ -73,6 +88,7 @@
             background-color: #ffffff;
             border: 1px solid #ccc;
             border-radius: 5px;
+            box-sizing: border-box;
         }
 
         /* Estilos para as mensagens do chat */
@@ -82,18 +98,23 @@
             border-radius: 10px;
             max-width: 80%;
             word-wrap: break-word;
+            display: inline-block;
         }
 
-        /* Mensagem do usuário */
+        /* Mensagem do usuário (alinhada à direita) */
         .user {
             background-color: #dcf8c6;
-            align-self: flex-end;
+            margin-left: auto;
+            text-align: right;
+            border-radius: 10px 0 10px 10px;
         }
 
-        /* Mensagem do TradiçãoIA */
+        /* Mensagem do TradiçãoIA (alinhada à esquerda) */
         .gpt {
             background-color: #ffffff;
-            align-self: flex-start;
+            margin-right: auto;
+            text-align: left;
+            border-radius: 0 10px 10px 10px;
             border: 1px solid #ddd;
         }
     </style>
@@ -103,15 +124,15 @@
     <div class="chat-container">
         <h1>TradiçãoIA</h1>
         <div id="chat"></div>
-        <input type="text" id="question" placeholder="Digite sua pergunta aqui">
+        <input type="text" id="question" placeholder="Digite sua pergunta aqui" onkeypress="handleKeyPress(event)">
         <button onclick="ask()">Enviar Pergunta</button>
     </div>
 
     <!-- Contêiner de login -->
     <div class="login-container">
         <h2>Login do Balconista</h2>
-        <input type="text" id="cpf" placeholder="Digite o CPF do cliente">
-        <button onclick="login()">Login</button>
+        <input type="text" id="cpf" placeholder="Digite o CPF do cliente" onkeypress="handleLoginKeyPress(event)">
+        <button onclick="login()">Entrar</button>
     </div>
 
     <script>
@@ -136,6 +157,9 @@
             chatDiv.appendChild(userMessage);
             questionInput.value = '';
 
+            // Rolagem automática para a última mensagem
+            chatDiv.scrollTop = chatDiv.scrollHeight;
+
             try {
                 // Envia a pergunta para o servidor e obtém a resposta
                 const response = await fetch('/ask', {
@@ -152,12 +176,36 @@
                 gptMessage.classList.add('message', 'gpt');
                 gptMessage.textContent = data.answer;
                 chatDiv.appendChild(gptMessage);
+
+                // Rolagem automática para a última mensagem
+                chatDiv.scrollTop = chatDiv.scrollHeight;
             } catch (error) {
                 console.error('Error:', error);
                 const errorMessage = document.createElement('div');
                 errorMessage.classList.add('message', 'gpt');
                 errorMessage.textContent = 'Falha ao obter resposta.';
                 chatDiv.appendChild(errorMessage);
+
+                // Rolagem automática para a última mensagem
+                chatDiv.scrollTop = chatDiv.scrollHeight;
+            }
+        }
+
+        /**
+         * Função para lidar com o pressionamento da tecla Enter na caixa de pergunta.
+         */
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                ask();
+            }
+        }
+
+        /**
+         * Função para lidar com o pressionamento da tecla Enter na caixa de CPF.
+         */
+        function handleLoginKeyPress(event) {
+            if (event.key === 'Enter') {
+                login();
             }
         }
 
