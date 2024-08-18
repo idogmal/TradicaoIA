@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login do Balconista</title>
+    <style>
+        /* Importando uma fonte moderna */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap');
+
+        /* Estilos globais */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+            background-color: #274181;
+            color: white;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Contêiner de login */
+        .login-container {
+            width: 400px;
+            padding: 40px;
+            background-color: #274181;
+            border-radius: 10px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        /* Estilos para títulos */
+        h2 {
+            font-family: 'Poppins', sans-serif;
+            margin: 0 0 20px 0;
+        }
+
+        /* Estilos para inputs e botões */
+        input, button {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+            width: 100%;
+        }
+
+        /* Estilos específicos para o botão */
+        button {
+            background-color: #f36f26;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 70%; /* Botão de "Entrar" menor */
+        }
+
+        /* Cor de fundo do botão ao passar o mouse */
+        button:hover {
+            background-color: #d95f20;
+        }
+
+        /* Ajuste do campo de CPF */
+        input {
+            width: 100%; /* Caixa de CPF maior */
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h2>Login do Balconista</h2>
+        <input type="text" id="cpf" placeholder="Digite o CPF do cliente" onkeypress="handleLoginKeyPress(event)">
+        <button onclick="login()">Entrar</button>
+    </div>
+
+    <script>
+        /**
+         * Função para lidar com o pressionamento da tecla Enter na caixa de CPF.
+         */
+        function handleLoginKeyPress(event) {
+            if (event.key === 'Enter') {
+                login();
+            }
+        }
+
+        /**
+         * Função de login do balconista utilizando o CPF.
+         */
+        function login() {
+            const cpfInput = document.getElementById('cpf');
+            const cpf = cpfInput.value;
+
+            // Verifica se o CPF foi inserido
+            if (cpf.trim() === '') {
+                alert('Por favor, insira o CPF do cliente.');
+                return;
+            }
+
+            // Simula a ação de login
+            alert(`Login realizado para CPF: ${cpf}`);
+        }
+    </script>
+</body>
+</html>

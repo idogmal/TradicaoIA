@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TradiçãoIA Interface</title>
+    <style>
+        /* Importando uma fonte moderna */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap');
+
+        /* Estilos globais */
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+
+        /* Contêiner do chat */
+        .chat-container {
+            width: 100%;
+            background-color: #e9ecef;
+            padding: 20px;
+            box-sizing: border-box;
+            height: 100%;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            border-right: 2px solid #ccc;
+        }
+
+        /* Título centralizado */
+        .chat-container h1 {
+            text-align: center;
+        }
+
+        /* Estilos para inputs e botões */
+        input, button, textarea {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        /* Área de mensagens do chat */
+        #chat {
+            flex-grow: 1;
+            overflow-y: auto;
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #ffffff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+            height: calc(100% - 110px);
+        }
+
+        /* Estilos para as mensagens do chat */
+        .message {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 10px;
+            max-width: 80%;
+            word-wrap: break-word;
+            display: block;
+            clear: both;
+        }
+
+        /* Mensagem do usuário (alinhada à direita) */
+        .user {
+            background-color: #dcf8c6;
+            margin-left: auto;  
+            text-align: right;
+            border-radius: 10px 0 10px 10px;
+        }
+
+        /* Mensagem do TradiçãoIA (alinhada à esquerda) */
+        .gpt {
+            background-color: #ffffff;
+            margin-right: auto;
+            text-align: left;
+            border-radius: 0 10px 10px 10px;
+            border: 1px solid #ddd;
+        }
+
+        /* Ajuste para o campo de texto de pergunta */
+        textarea {
+            resize: none;
+            overflow-y: hidden;
+            height: 60px; /* Aumentado para maior conforto */
+            max-height: 100px;
+            min-height: 60px;
+            width: 85%; /* Largura da caixa de pergunta aumentada */
+        }
+
+        /* Contêiner para textarea e botão de enviar */
+        .input-container {
+            display: flex;
+            align-items: center;
+        }
+
+        /* Estilo para o ícone de avião de papel */
+        .send-button {
+            background: none;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        .send-button img {
+            width: 20px;
+            height: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Contêiner do chat -->
+    <div class="chat-container">
+        <h1>TradiçãoIA</h1>
+        <div id="chat">
+            <div class="message gpt initial">
+                Oi, eu sou o TradicaoAPI, posso lhe ajudar?
+            </div>
+        </div>
+        <div class="input-container">
+            <textarea id="question" placeholder="Digite sua pergunta aqui" onkeypress="handleKeyPress(event)"></textarea>
+            <button class="send-button" onclick="ask()">
+                <img src="https://img.icons8.com/ios-filled/50/000000/send.png" alt="Enviar">
+            </button>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * Função para enviar uma pergunta ao TradiçãoIA e exibir a resposta.
+         */
+        async function ask() {
+            const questionInput = document.getElementById('question');
+            const chatDiv = document.getElementById('chat');
+            const question = questionInput.value;
+
+            // Verifica se a pergunta não está vazia
+            if (question.trim() === '') {
+                alert('Por favor, insira uma pergunta.');
+                return;
+            }
+
+            // Remove a mensagem inicial se ainda estiver presente
+            const initialMessage = chatDiv.querySelector('.gpt.initial');
+            if (initialMessage) {
+                chatDiv.removeChild(initialMessage);
+            }
+
+            // Exibe a pergunta do usuário na área de chat
+            const userMessage = document.createElement('div');
+            userMessage.classList.add('message', 'user');
+            userMessage.textContent = question;
+            chatDiv.appendChild(userMessage);
+            questionInput.value = '';
+
+            // Rolagem automática para a última mensagem
+            chatDiv.scrollTop = chatDiv.scrollHeight;
+
+            try {
+                // Envia a pergunta para o servidor e obtém a resposta
+                const response = await fetch('/ask', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ question: question })
+                });
+                const data = await response.json();
+
+                // Exibe a resposta do TradiçãoIA na área de chat com efeito de digitação
+                const gptMessage = document.createElement('div');
+                gptMessage.classList.add('message', 'gpt');
+                chatDiv.appendChild(gptMessage);
+                typeText(gptMessage, data.answer);
+
+                // Rolagem automática para a última mensagem
+                chatDiv.scrollTop = chatDiv.scrollHeight;
+            } catch (error) {
+                console.error('Error:', error);
+                const errorMessage = document.createElement('div');
+                errorMessage.classList.add('message', 'gpt');
+                errorMessage.textContent = 'Falha ao obter resposta.';
+                chatDiv.appendChild(errorMessage);
+
+                // Rolagem automática para a última mensagem
+                chatDiv.scrollTop = chatDiv.scrollHeight;
+            }
+        }
+
+        /**
+         * Função para exibir texto com efeito de digitação mais rápido.
+         */
+        function typeText(element, text, index = 0) {
+            if (index < text.length) {
+                element.textContent += text.charAt(index);
+                setTimeout(() => {
+                    element.scrollIntoView({ behavior: "smooth" });
+                    typeText(element, text, index + 1);
+                }, 10);  // Tempo reduzido para 10ms
+            }
+        }
+
+        /**
+         * Função para lidar com o pressionamento da tecla Enter na caixa de pergunta.
+         */
+        function handleKeyPress(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                ask();
+            }
+        }
+    </script>
+</body>
+</html>

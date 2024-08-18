@@ -3,11 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TradiçãoIA Interface</title>
+    <title>TradiçãoIA Interface Unificada</title>
     <style>
-        /* Importando uma fonte moderna */
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap');
-
         /* Estilos globais */
         body {
             font-family: 'Arial', sans-serif;
@@ -18,251 +15,33 @@
             background-color: #f8f9fa;
             color: #333;
         }
-
-        /* Contêiner do chat */
-        .chat-container {
-            width: 35%; /* Aumentado para 35% */
-            background-color: #e9ecef;
-            padding: 20px;
-            box-sizing: border-box;
-            height: 100%;
-            overflow-y: hidden; /* Impedir crescimento vertical */
+        
+        /* Contêiner principal que envolve os iframes */
+        .container {
             display: flex;
-            flex-direction: column;
-            border-right: 2px solid #ccc;
-        }
-
-        /* Título centralizado */
-        .chat-container h1 {
-            text-align: center;
-        }
-
-        /* Contêiner de login */
-        .login-container {
-            width: 65%; /* Ajustado para 65% */
-            background-color: #274181;
-            color: white;
-            padding: 40px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-
-        /* Estilos para títulos */
-        h1, h2 {
-            font-family: 'Poppins', sans-serif;
-            margin: 0 0 20px 0;
-        }
-
-        /* Estilos para inputs e botões */
-        input, button, textarea {
-            padding: 10px;
-            margin: 10px 0;
             width: 100%;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            box-sizing: border-box;
-            font-family: 'Arial', sans-serif;
+            height: 100vh;
         }
 
-        /* Estilos específicos para botões */
-        button {
-            background-color: #f36f26;
-            color: white;
+        iframe {
             border: none;
-            cursor: pointer;
-            transition: background-color 0.3s;
+            height: 100%;
         }
 
-        /* Cor de fundo do botão ao passar o mouse */
-        button:hover {
-            background-color: #d95f20;
+        /* Ajuste de largura para as seções */
+        #login-frame {
+            width: 65%;
         }
 
-        /* Área de mensagens do chat */
-        #chat {
-            flex-grow: 1;
-            overflow-y: auto;
-            margin-bottom: 10px;
-            padding: 10px;
-            background-color: #ffffff;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-sizing: border-box;
-            height: calc(100% - 110px); /* Altura fixa, descontando o título e a caixa de entrada */
-        }
-
-        /* Estilos para as mensagens do chat */
-        .message {
-            padding: 10px;
-            margin: 5px 0;
-            border-radius: 10px;
-            max-width: 80%;
-            word-wrap: break-word;
-            display: inline-block;
-        }
-
-        /* Mensagem do usuário (alinhada à direita) */
-        .user {
-            background-color: #dcf8c6;
-            margin-left: auto;  /* Força a mensagem para o lado direito */
-            text-align: right;
-            border-radius: 10px 0 10px 10px;
-            clear: both;
-        }
-
-        /* Mensagem do TradiçãoIA (alinhada à esquerda) */
-        .gpt {
-            background-color: #ffffff;
-            margin-right: auto;  /* Força a mensagem para o lado esquerdo */
-            text-align: left;
-            border-radius: 0 10px 10px 10px;
-            border: 1px solid #ddd;
-            clear: both;
-        }
-
-        /* Ajuste para o campo de texto de pergunta */
-        textarea {
-            resize: none;
-            overflow-y: hidden;
-            height: 50px; /* Altura fixa para a caixa de texto */
-            max-height: 100px; /* Altura máxima */
-            min-height: 50px; /* Altura mínima */
+        #chat-frame {
+            width: 35%;
         }
     </style>
 </head>
 <body>
-    <!-- Contêiner do chat -->
-    <div class="chat-container">
-        <h1>TradiçãoIA</h1>
-        <div id="chat">
-            <div class="message gpt initial">
-                Oi, eu sou o TradicaoAPI, posso lhe ajudar?
-            </div>
-        </div>
-        <textarea id="question" placeholder="Digite sua pergunta aqui" onkeypress="handleKeyPress(event)"></textarea>
-        <button onclick="ask()">Enviar Pergunta</button>
+    <div class="container">
+        <iframe id="login-frame" src="login.html"></iframe>
+        <iframe id="chat-frame" src="tradicaoia.html"></iframe>
     </div>
-
-    <!-- Contêiner de login -->
-    <div class="login-container">
-        <h2>Login do Balconista</h2>
-        <input type="text" id="cpf" placeholder="Digite o CPF do cliente" onkeypress="handleLoginKeyPress(event)">
-        <button onclick="login()">Entrar</button>
-    </div>
-
-    <script>
-        /**
-         * Função para enviar uma pergunta ao TradiçãoIA e exibir a resposta.
-         */
-        async function ask() {
-            const questionInput = document.getElementById('question');
-            const chatDiv = document.getElementById('chat');
-            const question = questionInput.value;
-
-            // Verifica se a pergunta não está vazia
-            if (question.trim() === '') {
-                alert('Por favor, insira uma pergunta.');
-                return;
-            }
-
-            // Remove a mensagem inicial se ainda estiver presente
-            const initialMessage = chatDiv.querySelector('.gpt.initial');
-            if (initialMessage) {
-                chatDiv.removeChild(initialMessage);
-            }
-
-            // Exibe a pergunta do usuário na área de chat
-            const userMessage = document.createElement('div');
-            userMessage.classList.add('message', 'user');
-            userMessage.textContent = question;
-            chatDiv.appendChild(userMessage);
-            questionInput.value = '';
-
-            // Rolagem automática para a última mensagem
-            chatDiv.scrollTop = chatDiv.scrollHeight;
-
-            try {
-                // Envia a pergunta para o servidor e obtém a resposta
-                const response = await fetch('/ask', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ question: question })
-                });
-                const data = await response.json();
-
-                // Exibe a resposta do TradiçãoIA na área de chat com efeito de digitação
-                const gptMessage = document.createElement('div');
-                gptMessage.classList.add('message', 'gpt');
-                chatDiv.appendChild(gptMessage);
-                typeText(gptMessage, data.answer);
-
-                // Rolagem automática para a última mensagem
-                chatDiv.scrollTop = chatDiv.scrollHeight;
-            } catch (error) {
-                console.error('Error:', error);
-                const errorMessage = document.createElement('div');
-                errorMessage.classList.add('message', 'gpt');
-                errorMessage.textContent = 'Falha ao obter resposta.';
-                chatDiv.appendChild(errorMessage);
-
-                // Rolagem automática para a última mensagem
-                chatDiv.scrollTop = chatDiv.scrollHeight;
-            }
-        }
-
-        /**
-         * Função para exibir texto com efeito de digitação mais rápido.
-         */
-        function typeText(element, text, index = 0) {
-            if (index < text.length) {
-                element.textContent += text.charAt(index);
-                setTimeout(() => {
-                    element.scrollIntoView({ behavior: "smooth" });
-                    typeText(element, text, index + 1);
-                }, 10);  // Tempo reduzido para 10ms
-            }
-        }
-
-        /**
-         * Função para lidar com o pressionamento da tecla Enter na caixa de pergunta.
-         */
-        function handleKeyPress(event) {
-            if (event.key === 'Enter' && !event.shiftKey) {
-                event.preventDefault();
-                ask();
-            }
-        }
-
-        /**
-         * Função para lidar com o pressionamento da tecla Enter na caixa de CPF.
-         */
-        function handleLoginKeyPress(event) {
-            if (event.key === 'Enter') {
-                login();
-            }
-        }
-
-        /**
-         * Função de login do balconista utilizando o CPF.
-         */
-        function login() {
-            const cpfInput = document.getElementById('cpf');
-            const cpf = cpfInput.value;
-
-            // Verifica se o CPF foi inserido
-            if (cpf.trim() === '') {
-                alert('Por favor, insira o CPF do cliente.');
-                return;
-            }
-
-            // Simula a ação de login
-            alert(`Login realizado para CPF: ${cpf}`);
-        }
-    </script>
 </body>
 </html>
-
